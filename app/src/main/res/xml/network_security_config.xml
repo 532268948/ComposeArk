@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!-- 设置允许http明文传输-->
+    <base-config cleartextTrafficPermitted="true">
+        <trust-anchors>
+            <!-- 设置信任系统级别证书-->
+            <certificates src="system" />
+            <!-- 设置信任用户自定义证书-->
+            <certificates src="user" />
+        </trust-anchors>
+    </base-config>
+</network-security-config>

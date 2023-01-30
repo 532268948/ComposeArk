@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.ComposeArk" parent="android:Theme.Material.Light.NoActionBar">
-        <item name="android:statusBarColor">@color/purple_700</item>
+    <style name="Theme.ComposeArk" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:windowBackground">@drawable/ark_splash_bg</item>
+<!--        <item name="android:windowDrawsSystemBarBackgrounds">false</item>-->
+        <item name="colorPrimary">@color/themeColor</item>
+        <item name="colorPrimaryDark">@color/themeColor</item>
+        <item name="colorAccent">@color/themeColor</item>
+        <item name="background">@color/themeColor</item>
     </style>
+
 </resources>

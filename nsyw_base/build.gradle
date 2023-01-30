@@ -1,0 +1,73 @@
+plugins {
+    id 'com.android.library'
+    id 'org.jetbrains.kotlin.android'
+    id "kotlin-kapt"
+    id "kotlin-parcelize"
+}
+
+android {
+    namespace 'com.nsyw.nsyw_base'
+    compileSdk Android.compileSdk
+
+    defaultConfig {
+        minSdk Android.minSdk
+        targetSdk Android.targetSdk
+        versionCode Android.versionCode
+        versionName Android.versionName
+
+    }
+
+    buildTypes {
+
+        debug{
+            minifyEnabled false
+            buildConfigField "String", "VERSION_NAME", "\"${Android.versionName}\""
+        }
+        release {
+            minifyEnabled false
+            buildConfigField "String", "VERSION_NAME", "\"${Android.versionName}\""
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
+        freeCompilerArgs += [
+                "-Xjvm-default=all",
+        ]
+    }
+
+    buildFeatures {
+        compose = true
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion = Android.composeVersion
+    }
+}
+
+dependencies {
+
+    api AndroidX.core_ktx
+    api AndroidX.lifecycle_runtime_ktx
+    api AndroidX.material
+    api AndroidX.appcompat
+    api AndroidX.constraintlayout
+    api AndroidX.activity_compose
+    api AndroidX.compose_ui
+    api AndroidX.compose_ui_tools_preview
+    api AndroidX.compose_material
+    api AndroidX.compose_navigation
+    api AndroidX.accompanist_systemuicontroller
+    api AndroidX.accompanist_insets
+    api AndroidX.accompanist_pager
+    api AndroidX.accompanist_pager_indicators
+
+    api Dependencies.coil
+    api Dependencies.retrofit
+    api Dependencies.convert_gson
+    api Dependencies.gson
+}
