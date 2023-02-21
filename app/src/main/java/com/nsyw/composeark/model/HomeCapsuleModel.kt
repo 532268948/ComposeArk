@@ -171,10 +171,10 @@ class HomeCapsuleHotAreaModel(
                     val regionHeight = viewHeightDp * height
                     model.list.add(
                         CapsuleHotArea(
-                            start = regionLeft,
-                            top = regionTop,
-                            width = regionWidth,
-                            height = regionHeight,
+                            start = 0f.coerceAtLeast(regionLeft),
+                            top = 0f.coerceAtLeast(regionTop),
+                            width = 0f.coerceAtLeast(regionWidth),
+                            height = 0f.coerceAtLeast(regionHeight),
                             linkUrl = resourceAttr.resourceBitAttr.route.orEmpty()
                         )
                     )

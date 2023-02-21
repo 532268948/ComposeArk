@@ -30,15 +30,22 @@ class HomeFirstViewModel : BaseViewModel() {
     private var tabModel: HomeMainTabModel? = null
     private var pageNo = 1
 
-    fun dispatch(action: HomeFirstViewAction) {
+    fun dispatch(action: HomeFirstViewIntent) {
         when (action) {
-            is HomeFirstViewAction.LoadData -> {
+            is HomeFirstViewIntent.Init -> {
+                if (viewStates.isInit) return
+                viewStates = viewStates.copy(isInit = true, refresh = true)
+                tabModel = action.tabModel
+                pageNo = 1
+                loadData()
+            }
+            is HomeFirstViewIntent.LoadData -> {
                 viewStates = viewStates.copy(refresh = true)
                 tabModel = action.tabModel
                 pageNo = 1
                 loadData()
             }
-            is HomeFirstViewAction.LoadMore -> {
+            is HomeFirstViewIntent.LoadMore -> {
                 loadData()
             }
         }
@@ -111,14 +118,14 @@ class HomeFirstViewModel : BaseViewModel() {
                     when {
                         pageNo == 1 && list.isEmpty() -> {
                             viewStates = viewStates.copy(
-                                refresh=false,
+                                refresh = false,
                                 loadStatus = LoadStatus.EMPTY,
                                 list = mutableListOf()
                             )
                         }
                         pageNo == 1 && !hasNext -> {
                             viewStates = viewStates.copy(
-                                refresh=false,
+                                refresh = false,
                                 loadStatus = LoadStatus.NO_MORE_DATA,
                                 list = list
                             )
@@ -126,7 +133,7 @@ class HomeFirstViewModel : BaseViewModel() {
                         pageNo == 1 && hasNext -> {
                             pageNo++
                             viewStates = viewStates.copy(
-                                refresh=false,
+                                refresh = false,
                                 loadStatus = LoadStatus.LOAD_COMPLETE,
                                 list = list
                             )
@@ -157,12 +164,14 @@ class HomeFirstViewModel : BaseViewModel() {
 
 }
 
-sealed class HomeFirstViewAction {
-    class LoadData(val tabModel: HomeMainTabModel?) : HomeFirstViewAction()
-    object LoadMore : HomeFirstViewAction()
+sealed class HomeFirstViewIntent {
+    class Init(val tabModel: HomeMainTabModel?) : HomeFirstViewIntent()
+    class LoadData(val tabModel: HomeMainTabModel?) : HomeFirstViewIntent()
+    object LoadMore : HomeFirstViewIntent()
 }
 
 data class HomeFirstViewState(
+    val isInit: Boolean = false,
     val refresh: Boolean = false,
     val loadStatus: LoadStatus = LoadStatus.INIT,
     val list: MutableList<ITypeModel> = mutableListOf(),

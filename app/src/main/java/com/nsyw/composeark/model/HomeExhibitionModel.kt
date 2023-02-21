@@ -3,6 +3,7 @@ package com.nsyw.composeark.model
 import com.nsyw.base.utils.formatMoney
 import com.nsyw.base.utils.getImageRatio
 import com.nsyw.base.utils.toLoadUrl
+import com.nsyw.base.utils.toLoadUrl
 import com.nsyw.composeark.bean.HomeExhibitionBean
 import com.nsyw.composeark.bean.HomeExhibitionEntryBean
 import com.nsyw.nsyw_base.ITypeModel

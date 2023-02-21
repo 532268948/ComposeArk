@@ -26,18 +26,19 @@ class HomeViewModel : BaseViewModel() {
 
     var viewStates by mutableStateOf(HomeViewState())
 
-    fun dispatch(action: HomeViewAction) {
+    fun dispatch(action: HomeViewIntent) {
         when (action) {
-            is HomeViewAction.LoadData -> {
+            is HomeViewIntent.LoadData -> {
                 loadData()
             }
-            is HomeViewAction.OnRefresh -> {
+            is HomeViewIntent.OnRefresh -> {
                 onRefresh()
             }
         }
     }
 
     private fun loadData() {
+        if (viewStates.isInit) return
         viewModelScope.launch {
             supervisorScope {
                 try {
@@ -51,6 +52,7 @@ class HomeViewModel : BaseViewModel() {
                     atmosphereModel?.let {
                         viewStates =
                             viewStates.copy(
+                                isInit = true,
                                 atmosphereModel = it,
                                 tabList = categoryTabList.await(),
                                 capsuleModel = capsuleModel,
@@ -116,26 +118,29 @@ class HomeViewModel : BaseViewModel() {
      */
     private fun queryDrainages() {
         viewModelScope.launch {
-            try {
-                val response = repository.queryDrainages(intArrayOf(1))
-                if (checkStatusAndEntryWithToast(response)) {
-                    val list = response.entry?.shadingWords?.map {
-                        it.name
-                    }?.filterNotNull()
-                    if (list.isNullOrEmpty()) {
-                        val hint = "请输入品牌名、商品名、货号或关键字"
-                        viewStates = viewStates.copy(searchHint = hint)
-                        return@launch
+//            supervisorScope {
+                try {
+                    val response = repository.queryDrainages(intArrayOf(1))
+                    if (checkStatusAndEntryWithToast(response)) {
+                        val list = response.entry?.shadingWords?.map {
+                            it.name
+                        }?.filterNotNull()
+                        if (list.isNullOrEmpty()) {
+                            val hint = "请输入品牌名、商品名、货号或关键字"
+                            viewStates = viewStates.copy(searchHint = hint)
+                            return@launch
+                        }
+                        for (word in list) {
+                            viewStates = viewStates.copy(searchHint = word)
+                            delay(5000)
+                        }
                     }
-                    for (word in list) {
-                        viewStates = viewStates.copy(searchHint = word)
-                        delay(5000)
-                    }
+                } catch (e: Exception) {
+                    val hint = "请输入品牌名、商品名、货号或关键字"
+                    viewStates = viewStates.copy(searchHint = hint)
+                    return@launch
                 }
-            } catch (e: Exception) {
-                val hint = "请输入品牌名、商品名、货号或关键字"
-                viewStates = viewStates.copy(searchHint = hint)
-            }
+//            }
         }
     }
 
@@ -183,12 +188,13 @@ class HomeViewModel : BaseViewModel() {
     }
 }
 
-sealed class HomeViewAction {
-    object LoadData : HomeViewAction()
-    object OnRefresh : HomeViewAction()
+sealed class HomeViewIntent {
+    object LoadData : HomeViewIntent()
+    object OnRefresh : HomeViewIntent()
 }
 
 data class HomeViewState(
+    val isInit: Boolean = false,
     val isRefreshing: Boolean = false,
     // 首页氛围
     val atmosphereModel: HomeAtmosphereModel = HomeAtmosphereModel(),
@@ -201,6 +207,7 @@ data class HomeViewState(
         )
     ),
     val searchHint: String = "请输入品牌名、商品名、货号或关键字",
+    // 胶囊页数据
     val capsuleModel: HomeCapsuleModel = HomeCapsuleModel(),
     // 首页营销数据
     val marketModel: HomeMarketModel = HomeMarketModel(),

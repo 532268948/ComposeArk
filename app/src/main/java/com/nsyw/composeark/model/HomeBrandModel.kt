@@ -1,7 +1,10 @@
 package com.nsyw.composeark.model
 
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.dp
 import com.nsyw.base.utils.formatMoney
 import com.nsyw.base.utils.getImageRatio
+import com.nsyw.base.utils.toLoadUrl
 import com.nsyw.base.utils.toLoadUrl
 import com.nsyw.composeark.bean.HomeBrandBean
 import com.nsyw.composeark.bean.HomeBrandEntryBean
@@ -109,7 +112,7 @@ class HomeBrandModel : ITypeModel {
                         goodsId = it.pitemId ?: 0L,
                         imageUrl = it.headPicture.toLoadUrl(),
                         price = it.minShPrice?.formatMoney().orEmpty(),
-                        commission = "最多赚${it.totalCommission?.formatMoney().orEmpty()}",
+                        commission = "最多赚${it.totalCommission.formatMoney()}",
                         goodsRoute = it.pitemRoute.orEmpty()
                     )
                 }

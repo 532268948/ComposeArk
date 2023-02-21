@@ -1,6 +1,7 @@
 package com.nsyw.nsyw_base.http
 
 import android.annotation.SuppressLint
+import android.os.Build
 import com.nsyw.nsyw_base.Constant
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
@@ -30,10 +31,10 @@ object RetrofitHelper {
             )
             .retryOnConnectionFailure(true)
             .hostnameVerifier(TrustAllNameVerifier())
-//        if (Build.VERSION.SDK_INT < 29) {
-//            //不验证证书
-//            builder.sslSocketFactory(createSSLSocketFactory())
-//        }
+        if (Build.VERSION.SDK_INT < 29) {
+            //不验证证书
+            builder.sslSocketFactory(createSSLSocketFactory(),TrustAllCerts())
+        }
         interceptors.forEach { interceptor -> builder.addInterceptor(interceptor) }
         return builder.build()
     }

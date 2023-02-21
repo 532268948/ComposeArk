@@ -9,14 +9,14 @@ import com.nsyw.nsyw_base.utils.ToastUtil
 import com.nsyw.nsyw_base.widget.statelayout.PageState
 import com.nsyw.nsyw_base.widget.statelayout.StateData
 import com.nsyw.nsyw_base.widget.statelayout.bindData
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.receiveAsFlow
 
 
 abstract class BaseViewModel : ViewModel() {
 
-    private val _loadEvents = Channel<LoadEvent>(Channel.BUFFERED)
-    val loadEvents = _loadEvents.receiveAsFlow()
+//    private val _loadEvents = Channel<LoadEvent>(Channel.BUFFERED)
+//    val loadEvents = _loadEvents.receiveAsFlow()
+
+    var loadState by mutableStateOf(LoadState())
 
     var pageState by mutableStateOf(PageState.LOADING.bindData())
 
@@ -34,12 +34,14 @@ abstract class BaseViewModel : ViewModel() {
         ToastUtil.showToast(msg)
     }
 
-    suspend fun showLoadingDialog() {
-        _loadEvents.send(LoadEvent.ShowLoading)
+    fun showLoadingDialog() {
+        if (loadState.showLoading) return
+        loadState = loadState.copy(showLoading = true)
     }
 
-    suspend fun hideLoadingDialog() {
-        _loadEvents.send(LoadEvent.HideLoading)
+    fun hideLoadingDialog() {
+        if (!loadState.showLoading) return
+        loadState = loadState.copy(showLoading = false)
     }
 
     protected fun showLoading() {
@@ -59,7 +61,11 @@ abstract class BaseViewModel : ViewModel() {
     }
 }
 
-sealed class LoadEvent {
-    object ShowLoading : LoadEvent()
-    object HideLoading : LoadEvent()
-}
+data class LoadState(
+    val showLoading: Boolean = false
+)
+
+//sealed class LoadEvent {
+//    object ShowLoading : LoadEvent()
+//    object HideLoading : LoadEvent()
+//}

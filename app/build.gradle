@@ -22,12 +22,26 @@ android {
         }
     }
 
+    signingConfigs {
+        sign {
+            keyAlias 'key0'
+            keyPassword '123456'
+            storeFile file('../sign')
+            storePassword '123456'
+        }
+    }
+
     buildTypes {
         debug{
+            signingConfig signingConfigs.sign
             minifyEnabled false
         }
         release {
+            signingConfig signingConfigs.sign
             minifyEnabled false
+//            minifyEnabled true
+//            shrinkResources true
+//            zipAlignEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
@@ -45,7 +59,7 @@ android {
         compose true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion '1.1.1'
+        kotlinCompilerExtensionVersion = Android.composeCompilerVersion
     }
     packagingOptions {
         resources {

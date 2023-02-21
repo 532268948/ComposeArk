@@ -5,7 +5,9 @@ object Android {
     const val targetSdk = 33
     const val versionCode = 103000
     const val versionName = "10.3.0"
-    const val composeVersion="1.1.1"
+    const val composeVersion="1.3.1"
+    const val composeCompilerVersion="1.4.2"
+    const val kotlinCompiler="1.8.10"
 }
 
 object Dependencies {

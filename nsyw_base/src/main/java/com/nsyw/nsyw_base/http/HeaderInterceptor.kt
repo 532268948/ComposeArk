@@ -14,7 +14,7 @@ class HeaderInterceptor : Interceptor {
         val originalRequest = chain.request()
         val newBuilder = originalRequest.newBuilder()
 //        newBuilder.addHeader("aifocus-cookie", TokenCacheUtil.getToken())
-        newBuilder.addHeader("aifocus-cookie", "323_d0ce944fd19268c9d4199d172c961aa1")
+        newBuilder.addHeader("aifocus-cookie", "323_40e4a6803e924ab2d5023b0e0aeb3144")
         newBuilder.addHeader("User-Agent", getUA())
         newBuilder.addHeader("version", BuildConfig.VERSION_NAME)
         newBuilder.addHeader("platformVersion", Build.VERSION.RELEASE)

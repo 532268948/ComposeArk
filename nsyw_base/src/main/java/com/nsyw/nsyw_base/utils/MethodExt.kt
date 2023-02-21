@@ -3,6 +3,10 @@ package com.nsyw.base.utils
 import android.webkit.URLUtil
 import com.google.gson.Gson
 import com.nsyw.nsyw_base.Constant.IMAGE_URL_PREFIX
+import com.nsyw.nsyw_base.Constant.OSS_MAX_SUFFIX
+import com.nsyw.nsyw_base.Constant.OSS_PROCESS_IMAGE
+import com.nsyw.nsyw_base.Constant.OSS_RESIZE_W
+import com.nsyw.nsyw_base.Constant.OSS_SMALL_SUFFIX
 import java.lang.reflect.Type
 import java.math.BigDecimal
 
@@ -35,6 +39,28 @@ fun String?.toLoadUrl(): String {
         IMAGE_URL_PREFIX + this
     }
 }
+
+//fun String?.toLoadOssUrl(width: Int = 1080): String {
+//    return if (this == null) {
+//        ""
+//    } else {
+//        var originUrl = this
+//        var endIndex: Int =
+//            originUrl.lastIndexOf(OSS_MAX_SUFFIX)
+//        if (endIndex < 0) {
+//            endIndex =
+//                originUrl.lastIndexOf(OSS_SMALL_SUFFIX)
+//        }
+//        if (endIndex >= 0) {
+//            originUrl = originUrl.substring(0, endIndex)
+//        }
+//        if (originUrl.isEmpty() || originUrl.isNetworkUrl()) {
+//            originUrl + OSS_PROCESS_IMAGE + OSS_RESIZE_W + width
+//        } else {
+//            IMAGE_URL_PREFIX + originUrl + OSS_PROCESS_IMAGE + OSS_RESIZE_W + width
+//        }
+//    }
+//}
 
 fun String?.isNetworkUrl(): Boolean {
     return URLUtil.isNetworkUrl(this)

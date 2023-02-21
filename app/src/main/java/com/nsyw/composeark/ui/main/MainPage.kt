@@ -50,10 +50,6 @@ fun MainPage() {
             }
         },
         content = {
-//            HorizontalPager(count = 3,
-//            state = pagerState) {
-//
-//            }
             NavHost(
                 modifier = Modifier
                     .padding(it)

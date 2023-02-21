@@ -13,8 +13,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.TabRowDefaults.Indicator
-import androidx.compose.material.pullrefresh.PullRefreshIndicator
-import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -49,6 +47,7 @@ import com.nsyw.nsyw_base.ITypeModel
 import com.nsyw.nsyw_base.theme.*
 import com.nsyw.nsyw_base.utils.ToastUtil
 import com.nsyw.nsyw_base.widget.banner.Banner
+import com.nsyw.nsyw_base.widget.refresh.PullRefreshLayout
 import com.nsyw.nsyw_base.widget.refreshloadmorelazycolumn.LoadStatus
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -66,12 +65,8 @@ fun HomePage() {
     val coroutineScope = rememberCoroutineScope()
     val systemUiCtrl = rememberSystemUiController()
 
-    val pullRefreshState = rememberPullRefreshState(
-        viewStates.isRefreshing,
-        { viewModel.dispatch(HomeViewAction.OnRefresh) })
-
     LaunchedEffect(Unit) {
-        viewModel.dispatch(HomeViewAction.LoadData)
+        viewModel.dispatch(HomeViewIntent.LoadData)
     }
     systemUiCtrl.setStatusBarColor(viewStates.atmosphereModel.topBgColor)
     systemUiCtrl.setNavigationBarColor(viewStates.atmosphereModel.topBgColor)
@@ -80,10 +75,9 @@ fun HomePage() {
     ArkBasePage(viewModel = viewModel,
         modifier = Modifier
             .fillMaxSize()
-            .background(COLOR_F5F5F5)
-            .pullRefresh(state = pullRefreshState, enabled = true),
+            .background(COLOR_F5F5F5),
         onRetry = {
-            viewModel.dispatch(HomeViewAction.LoadData)
+            viewModel.dispatch(HomeViewIntent.LoadData)
         }) {
         Column {
             Row(
@@ -173,14 +167,6 @@ fun HomePage() {
                 homeViewModel = viewModel, coroutineScope = coroutineScope
             )
         }
-
-        //下拉刷新指示器
-        PullRefreshIndicator(
-            modifier = Modifier.align(Alignment.TopCenter),
-            refreshing = viewStates.isRefreshing,
-            state = pullRefreshState,
-            backgroundColor = White
-        )
     }
 }
 
@@ -196,6 +182,7 @@ fun HomeTabViewPager(
 
     ScrollableTabRow(selectedTabIndex = pageState.currentPage,
         backgroundColor = viewStates.atmosphereModel.topBgColor,
+        contentColor = viewStates.atmosphereModel.topBgColor,
         edgePadding = 0.dp,
         indicator = {
             val currentIndicatorWidth by animateDpAsState(
@@ -240,27 +227,34 @@ fun HomeTabViewPager(
             }
         }
     }
-    HorizontalPager(
-        modifier = Modifier.fillMaxSize(),
-        verticalAlignment = Alignment.Top,
-        count = viewStates.tabList.size,
-        state = pageState,
-        userScrollEnabled = false
-    ) { page ->
-        val tab = viewStates.tabList[page]
-        when (tab.tabType) {
-            0 -> {
-                HomeFirstPage(homeViewModel = homeViewModel)
-            }
-            else -> {
-                Text(modifier = Modifier.fillMaxSize(), text = "${page}")
+    PullRefreshLayout(
+        modifier = Modifier.background(viewStates.atmosphereModel.topBgColor),
+        refreshing = viewStates.isRefreshing,
+        onRefresh = {
+            homeViewModel.dispatch(HomeViewIntent.OnRefresh)
+        }) {
+        HorizontalPager(
+            modifier = Modifier.fillMaxSize(),
+            verticalAlignment = Alignment.Top,
+            count = viewStates.tabList.size,
+            state = pageState,
+            userScrollEnabled = false
+        ) { page ->
+            val tab = viewStates.tabList[page]
+            when (tab.tabType) {
+                0 -> {
+                    HomeFirstPage(homeViewModel = homeViewModel)
+                }
+                else -> {
+                    Text(modifier = Modifier.fillMaxSize(), text = "${page}")
+                }
             }
         }
     }
 }
 
 @SuppressLint("CoroutineCreationDuringComposition")
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterialApi::class)
 @Composable
 fun HomeFirstPage(homeViewModel: HomeViewModel) {
 
@@ -280,7 +274,7 @@ fun HomeFirstPage(homeViewModel: HomeViewModel) {
     }
     LaunchedEffect(Unit) {
         viewModel.dispatch(
-            HomeFirstViewAction.LoadData(
+            HomeFirstViewIntent.Init(
                 homeViewStates.homeMainTabModel.list.getOrNull(
                     currentPageIndex
                 )
@@ -293,7 +287,7 @@ fun HomeFirstPage(homeViewModel: HomeViewModel) {
         }
     }
     LazyColumn(
-        modifier = Modifier.fillMaxSize(), state = lazyColumnState
+        modifier = Modifier.fillMaxSize().background(COLOR_F5F5F5), state = lazyColumnState
     ) {
         // 胶囊页
         if (capsuleModel.visible) {
@@ -310,13 +304,14 @@ fun HomeFirstPage(homeViewModel: HomeViewModel) {
         // 会场tab
         if (homeViewModel.viewStates.homeMainTabModel.list.isNotEmpty()) {
             stickyHeader {
-                HomeExhibitionTab(currentPageIndex = currentPageIndex,
+                HomeExhibitionTab(
+                    currentPageIndex = currentPageIndex,
                     backgroundColor = if (lazyColumnState.firstVisibleItemIndex >= stickerIndex) White else COLOR_F5F5F5,
                     model = homeViewModel.viewStates.homeMainTabModel,
                     onTabClick = { index ->
                         currentPageIndex = index
                         viewModel.dispatch(
-                            HomeFirstViewAction.LoadData(
+                            HomeFirstViewIntent.LoadData(
                                 homeViewStates.homeMainTabModel.list.getOrNull(
                                     index
                                 )
@@ -345,7 +340,7 @@ fun HomeFirstPage(homeViewModel: HomeViewModel) {
                     item {
                         HomeExhibitionOrBrand(item = item)
                         if (loadStatus == LoadStatus.LOAD_COMPLETE && index + 3 >= goodsList.size) {
-                            viewModel.dispatch(HomeFirstViewAction.LoadMore)
+                            viewModel.dispatch(HomeFirstViewIntent.LoadMore)
                         }
                     }
                 }
@@ -371,6 +366,7 @@ fun HomeFirstPage(homeViewModel: HomeViewModel) {
                         }
                     }
                 }
+                else -> {}
             }
             item {
                 Image(
@@ -381,7 +377,6 @@ fun HomeFirstPage(homeViewModel: HomeViewModel) {
             }
         }
     }
-
 }
 
 @Composable
@@ -416,6 +411,7 @@ fun CapsuleImage(model: HomeCapsuleImageModel) {
         AsyncImage(
             modifier = Modifier.fillMaxSize(),
             model = model.imageUrl.toLoadUrl(),
+            contentScale = ContentScale.FillBounds,
             contentDescription = "胶囊页活动单图"
         )
     }
@@ -449,6 +445,7 @@ fun CapsuleHotArea(model: HomeCapsuleHotAreaModel) {
                 .background(model.bgColor)
                 .clipToBounds(),
             model = model.imgUrl,
+            contentScale = ContentScale.FillBounds,
             contentDescription = "热区图片"
         )
         model.list.forEach { area ->
@@ -457,7 +454,7 @@ fun CapsuleHotArea(model: HomeCapsuleHotAreaModel) {
                 .width(area.width.dp)
                 .height(area.height.dp)
                 .clickable {
-                    ToastUtil.showToast(area.linkType.toString())
+                    ToastUtil.showToast(area.linkUrl.toString())
                 })
         }
     }
@@ -467,6 +464,7 @@ fun CapsuleHotArea(model: HomeCapsuleHotAreaModel) {
 fun Market(list: MutableList<ITypeModel>) {
     Column(
         modifier = Modifier
+            .background(COLOR_F5F5F5)
             .padding(12.dp, 10.dp, 12.dp, 0.dp)
             .clip(shape = RoundedCornerShape(10.dp))
             .background(White)
